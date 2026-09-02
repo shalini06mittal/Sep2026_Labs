@@ -550,6 +550,19 @@ JOIN transactions t ON a.account_id = t.account_id
 WHERE t.txn_type = 'Debit'
 GROUP BY c.customer_id, c.first_name, c.last_name, DATE_TRUNC('month', t.txn_date)
 ORDER BY c.customer_id, spend_month;
+
+OR 
+
+SELECT c.customer_id, c.first_name, c.last_name,
+       to_char(DATE_TRUNC('month', t.txn_date), 'FMMonth') AS spend_month,
+       SUM(-t.amount) AS total_spend
+FROM customers c
+JOIN accounts a ON c.customer_id = a.customer_id
+JOIN transactions t ON a.account_id = t.account_id
+WHERE t.txn_type = 'Debit'
+GROUP BY c.customer_id, c.first_name, c.last_name, DATE_TRUNC('month', t.txn_date)
+ORDER BY c.customer_id, DATE_TRUNC('month', t.txn_date);
+
 ```
 
 **Why:** Grouping by both customer and month gives one row per customer per month. (In MySQL, replace DATE_TRUNC('month', t.txn_date) with DATE_FORMAT(t.txn_date, '%Y-%m-01').) Keep this query — Q19 and Q20 build directly on top of it.
