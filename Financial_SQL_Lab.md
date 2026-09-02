@@ -16,22 +16,24 @@ Dataset: 4 tables — customers, accounts, categories, transactions
     - [2.2 accounts](#22-accounts)
     - [2.3 categories](#23-categories)
     - [2.4 transactions](#24-transactions)
-- [3. Setup Script — Create the Schema](#3-setup-script-create-the-schema)
-- [4. Sample Data — Insert Statements](#4-sample-data-insert-statements)
+- [3. Setup Script — Create the Schema](#3-setup-script--create-the-schema)
+- [4. Sample Data — Insert Statements](#4-sample-data--insert-statements)
   - [4.1 customers (10 rows)](#41-customers-10-rows)
   - [4.2 accounts (13 rows)](#42-accounts-13-rows)
   - [4.3 categories (8 rows)](#43-categories-8-rows)
   - [4.4 transactions (82 rows)](#44-transactions-82-rows)
-- [5. Part A — Joining Tables](#5-part-a-joining-tables)
-- [6. Part B — Grouping and Aggregation](#6-part-b-grouping-and-aggregation)
-- [7. Part C — Subqueries](#7-part-c-subqueries)
-- [8. Part D — Window Functions](#8-part-d-window-functions)
-- [9. Choosing the Right Tool](#9-choosing-the-right-tool)
-- [10. Solutions](#10-solutions)
-  - [10.1 Part A Solutions — Joins](#101-part-a-solutions-joins)
-  - [10.2 Part B Solutions — Grouping and Aggregation](#102-part-b-solutions-grouping-and-aggregation)
-  - [10.3 Part C Solutions — Subqueries](#103-part-c-solutions-subqueries)
-  - [10.4 Part D Solutions — Window Functions](#104-part-d-solutions-window-functions)
+- [5. SQL Practice: Joins vs Subqueries vs Window Functions](#5-sql-practice-joins-vs-subqueries-vs-window-functions)
+- [SQL Practice: ADVANCE QUERIES](#sql-practice-advance-queries)
+- [6. Part A — Joining Tables](#6-part-a--joining-tables)
+- [7. Part B — Grouping and Aggregation](#7-part-b--grouping-and-aggregation)
+- [8. Part C — Subqueries](#8-part-c--subqueries)
+- [9. Part D — Window Functions](#9-part-d--window-functions)
+- [10. Choosing the Right Tool](#10-choosing-the-right-tool)
+- [11. Solutions](#11-solutions)
+  - [11.1 Part A Solutions — Joins](#111-part-a-solutions--joins)
+  - [11.2 Part B Solutions — Grouping and Aggregation](#112-part-b-solutions--grouping-and-aggregation)
+  - [11.3 Part C Solutions — Subqueries](#113-part-c-solutions--subqueries)
+  - [11.4 Part D Solutions — Window Functions](#114-part-d-solutions--window-functions)
 
 # 1. Introduction
 
@@ -61,45 +63,45 @@ Relationships:
 
 ### 2.1 customers
 
-| Column | Type | Description |
-|---|---|---|
-| customer_id | INT, PK | Unique identifier for the customer. |
-| first_name | VARCHAR(50) | Customer's first name. |
-| last_name | VARCHAR(50) | Customer's last name. |
-| email | VARCHAR(100) | Customer's email address. |
-| city | VARCHAR(50) | City of residence. |
-| signup_date | DATE | Date the customer joined the bank. |
+| Column      | Type         | Description                         |
+| ----------- | ------------ | ----------------------------------- |
+| customer_id | INT, PK      | Unique identifier for the customer. |
+| first_name  | VARCHAR(50)  | Customer's first name.              |
+| last_name   | VARCHAR(50)  | Customer's last name.               |
+| email       | VARCHAR(100) | Customer's email address.           |
+| city        | VARCHAR(50)  | City of residence.                  |
+| signup_date | DATE         | Date the customer joined the bank.  |
 
 ### 2.2 accounts
 
-| Column | Type | Description |
-|---|---|---|
-| account_id | INT, PK | Unique identifier for the account. |
-| customer_id | INT, FK → customers | Owner of the account. |
-| account_type | VARCHAR(20) | 'Checking', 'Savings', or 'Credit Card'. |
-| open_date | DATE | Date the account was opened. |
-| status | VARCHAR(10) | 'Active' or 'Closed'. |
-| balance | DECIMAL(10,2) | Current account balance snapshot (negative for credit card balances owed). |
+| Column       | Type                | Description                                                                |
+| ------------ | ------------------- | -------------------------------------------------------------------------- |
+| account_id   | INT, PK             | Unique identifier for the account.                                         |
+| customer_id  | INT, FK → customers | Owner of the account.                                                      |
+| account_type | VARCHAR(20)         | 'Checking', 'Savings', or 'Credit Card'.                                   |
+| open_date    | DATE                | Date the account was opened.                                               |
+| status       | VARCHAR(10)         | 'Active' or 'Closed'.                                                      |
+| balance      | DECIMAL(10,2)       | Current account balance snapshot (negative for credit card balances owed). |
 
 ### 2.3 categories
 
-| Column | Type | Description |
-|---|---|---|
-| category_id | INT, PK | Unique identifier for the category. |
-| category_name | VARCHAR(30) | e.g. 'Groceries', 'Salary', 'Rent'. |
-| category_group | VARCHAR(10) | 'Income' or 'Expense'. |
+| Column         | Type        | Description                         |
+| -------------- | ----------- | ----------------------------------- |
+| category_id    | INT, PK     | Unique identifier for the category. |
+| category_name  | VARCHAR(30) | e.g. 'Groceries', 'Salary', 'Rent'. |
+| category_group | VARCHAR(10) | 'Income' or 'Expense'.              |
 
 ### 2.4 transactions
 
-| Column | Type | Description |
-|---|---|---|
-| transaction_id | INT, PK | Unique identifier for the transaction. |
-| account_id | INT, FK → accounts | Account the transaction posted to. |
-| txn_date | DATE | Date the transaction posted. |
-| amount | DECIMAL(10,2) | Positive for money in (Credit), negative for money out (Debit). |
-| txn_type | VARCHAR(10) | 'Credit' or 'Debit'. |
-| category_id | INT, FK → categories | Category the transaction belongs to. |
-| description | VARCHAR(100) | Free-text note on the transaction. |
+| Column         | Type                 | Description                                                     |
+| -------------- | -------------------- | --------------------------------------------------------------- |
+| transaction_id | INT, PK              | Unique identifier for the transaction.                          |
+| account_id     | INT, FK → accounts   | Account the transaction posted to.                              |
+| txn_date       | DATE                 | Date the transaction posted.                                    |
+| amount         | DECIMAL(10,2)        | Positive for money in (Credit), negative for money out (Debit). |
+| txn_type       | VARCHAR(10)          | 'Credit' or 'Debit'.                                            |
+| category_id    | INT, FK → categories | Category the transaction belongs to.                            |
+| description    | VARCHAR(100)         | Free-text note on the transaction.                              |
 
 # 3. Setup Script — Create the Schema
 
@@ -282,11 +284,220 @@ INSERT INTO transactions (transaction_id, account_id, txn_date, amount, txn_type
 INSERT INTO transactions (transaction_id, account_id, txn_date, amount, txn_type, category_id, description) VALUES (82, 111, '2025-03-25', 150, 'Credit', 7, 'Dividend payout');
 ```
 
-DATA VIEW:
 
-**CUSTOMERS:**
+# 5. SQL Practice: Joins vs Subqueries vs Window Functions
 
-# 5. Part A — Joining Tables
+Schema: `customers`, `accounts`, `categories`, `transactions` (as given).
+
+For each question, think about **what shape of answer you need** before picking a tool:
+- **JOIN** → you need columns from two+ tables *combined side by side*, one row per matching pair.
+- **Subquery** → you need to compare a row (or group) against a *computed scalar or set*, often filtering, and the comparison value isn't naturally "joinable" as a row.
+- **Window function** → you need a per-row calculation that depends on *other rows in the same result set* (running totals, rank within a group, previous/next row) **while still keeping row-level detail**. The moment you hear "for each X, show Y and also its rank/running total/previous value **without collapsing rows**," think window function.
+
+---
+**Q1.** List every customer with their account type(s) and current balance.
+
+**Q2.** Find customers who have never opened an account.
+
+**Q3.** For customers with more than one account, show total balance across all their accounts.
+
+**Q4.** For each account, show every transaction with a running (cumulative) balance of amounts, ordered by date.
+
+**Q5.** Find customers whose total transaction amount is greater than the average total transaction amount across all customers.
+
+**Q6.** For each account, find the single category the account spent the most money on.
+
+**Q7.** List transactions where the amount is greater than the average transaction amount for that same account.
+
+**Q8.** Find the second-highest-balance account for each customer.
+
+**Q9.** List categories that have never appeared in any transaction.
+
+**Q10.** For each customer, show every transaction date along with the number of days since their previous transaction.
+
+- SOLUTIONS
+
+**Q1.** List every customer with their account type(s) and current balance.
+
+```sql
+SELECT c.customer_id, c.first_name, c.last_name, a.account_type, a.balance
+FROM customers c
+JOIN accounts a ON a.customer_id = c.customer_id;
+```
+
+**Why JOIN:** We want customer columns and account columns living in the *same row*. No aggregation, no comparison against a computed value — just combining two tables on a key. A subquery would force us to pull account info one column at a time (ugly); a window function is irrelevant since nothing depends on "other rows."
+
+---
+
+**Q2.** Find customers who have never opened an account.
+
+```sql
+SELECT c.customer_id, c.first_name, c.last_name
+FROM customers c
+WHERE NOT EXISTS (
+    SELECT 1 FROM accounts a WHERE a.customer_id = c.customer_id
+);
+```
+
+**Why subquery (not JOIN):** This is a "prove absence" question. A plain JOIN only returns rows that *match* — it cannot directly express "no match exists" without an extra NULL-check trick (`LEFT JOIN ... WHERE a.account_id IS NULL`, which *is* a valid alternative, but conceptually it's still testing non-existence). `NOT EXISTS` states the intent directly. A window function makes no sense here — there is no per-row ranking or running calculation, just a yes/no membership test.
+
+---
+
+**Q3.** For customers with more than one account, show total balance across all their accounts.
+
+```sql
+SELECT c.customer_id, c.first_name, c.last_name, SUM(a.balance) AS total_balance
+FROM customers c
+JOIN accounts a ON a.customer_id = c.customer_id
+GROUP BY c.customer_id, c.first_name, c.last_name
+HAVING COUNT(a.account_id) > 1;
+```
+
+**Why JOIN + GROUP BY (not subquery, not window):** We need to *collapse* multiple account rows into one row per customer — that's exactly what GROUP BY does after a JOIN. A window function (`SUM() OVER (PARTITION BY customer_id)`) could compute the same total but would keep one row *per account*, then you'd need an extra step (DISTINCT or outer filter) to get one row per customer — more work for no benefit. A subquery isn't needed since nothing here is being compared to a separately-computed scalar.
+
+---
+
+**Q4.** For each account, show every transaction with a running (cumulative) balance of amounts, ordered by date.
+
+```sql
+SELECT account_id, transaction_id, txn_date, amount,
+       SUM(amount) OVER (PARTITION BY account_id ORDER BY txn_date, transaction_id) AS running_total
+FROM transactions;
+```
+
+**Why window function:** We must keep **every transaction row** visible *and* attach a value that depends on all prior rows *within the same account, in date order*. GROUP BY would collapse rows (losing transaction-level detail) — the opposite of what we want. A correlated subquery could technically compute this (`SUM(amount) WHERE account_id = t.account_id AND txn_date <= t.txn_date`), but it re-scans the table for every row, is slower, and is harder to read than `SUM() OVER (...)`, which was built exactly for this "cumulative, ordered, row-preserving" pattern.
+
+---
+
+**Q5.** Find customers whose total transaction amount is greater than the average total transaction amount across all customers.
+
+```sql
+SELECT customer_id, total_amount
+FROM (
+    SELECT a.customer_id, SUM(t.amount) AS total_amount
+    FROM accounts a
+    JOIN transactions t ON t.account_id = a.account_id
+    GROUP BY a.customer_id
+) per_customer
+WHERE total_amount > (
+    SELECT AVG(total_amount) FROM (
+        SELECT a.customer_id, SUM(t.amount) AS total_amount
+        FROM accounts a
+        JOIN transactions t ON t.account_id = a.account_id
+        GROUP BY a.customer_id
+    ) x
+);
+```
+
+**Why subquery (not just JOIN):** The filter condition (`> average of everyone`) requires a value computed by *aggregating across the whole result set first* — a JOIN alone has no way to compare a row against a value that itself depends on all rows. This is the classic "compare each group to an overall statistic" pattern, which is subquery territory. (Note: you *could* also write this with a window function — `AVG(total_amount) OVER ()` — since that also lets each row see an aggregate over the whole set without collapsing it. That's a legitimate alternative here, but the nested-subquery form above is often what's expected when the outer query needs to filter with `WHERE`, since window function results can't be used directly in `WHERE` — they'd require an extra wrapping query anyway, at which point the subquery approach is more direct.)
+
+---
+
+**Q6.** For each account, find the single category the account spent the most money on.
+
+```sql
+SELECT account_id, category_id, total_spent
+FROM (
+    SELECT t.account_id, t.category_id,
+           SUM(t.amount) AS total_spent,
+           ROW_NUMBER() OVER (PARTITION BY t.account_id ORDER BY SUM(t.amount) DESC) AS rn
+    FROM transactions t
+    WHERE t.txn_type = 'Debit'
+    GROUP BY t.account_id, t.category_id
+) ranked
+WHERE rn = 1;
+```
+
+**Why window function (not plain JOIN/GROUP BY):** This is a "top-1 per group" problem. GROUP BY alone can give you the total per (account, category) pair, but it cannot then pick *only the top row per account* — `MAX()` would tell you the biggest total, not which category it belongs to, without another join back. `ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)` ranks categories within each account in one pass, and we simply filter `rn = 1`. A join can't rank rows relative to each other — ranking is inherently a window-function job.
+
+---
+
+**Q7.** List transactions where the amount is greater than the average transaction amount for that same account.
+
+**Option A — correlated subquery:**
+```sql
+SELECT t.*
+FROM transactions t
+WHERE t.amount > (
+    SELECT AVG(t2.amount) FROM transactions t2 WHERE t2.account_id = t.account_id
+);
+```
+
+**Option B — window function:**
+```sql
+SELECT *
+FROM (
+    SELECT t.*, AVG(t.amount) OVER (PARTITION BY t.account_id) AS avg_amount
+    FROM transactions t
+) x
+WHERE amount > avg_amount;
+```
+
+**Why both exist here, and when each wins:** Both are legitimate; this question is designed to show the tradeoff. The correlated subquery re-runs `AVG()` for every single row (once per outer row) — clear to write, but potentially slow on large tables. The window function computes the per-account average *once per partition* internally and attaches it to every row in a single pass — generally faster and preferred for this kind of "compare row to its group's aggregate" task. Plain JOIN doesn't work at all here because there's no second table to join to — the comparison value comes from the *same* table, aggregated by a key, which is precisely what subqueries/window functions are for.
+
+---
+
+**Q8.** Find the second-highest-balance account for each customer.
+
+```sql
+SELECT customer_id, account_id, balance
+FROM (
+    SELECT a.customer_id, a.account_id, a.balance,
+           DENSE_RANK() OVER (PARTITION BY a.customer_id ORDER BY a.balance DESC) AS rnk
+    FROM accounts a
+) ranked
+WHERE rnk = 2;
+```
+
+**Why window function (not subquery):** "Nth highest per group" is a ranking problem, and ranking is defined *relative to other rows in the same partition* — the core use case for `RANK()`/`DENSE_RANK()`. Doing this with a correlated subquery is possible (`SELECT MAX(balance) WHERE balance < (SELECT MAX(balance) ... same customer)`) but gets awkward fast, especially with ties, and gets worse for "3rd highest," "4th highest," etc. `DENSE_RANK()` handles ties correctly and scales to any N by just changing the filter value. A plain JOIN has no concept of ranking at all.
+
+---
+
+**Q9.** List categories that have never appeared in any transaction.
+
+```sql
+SELECT c.category_id, c.category_name
+FROM categories c
+WHERE c.category_id NOT IN (
+    SELECT DISTINCT t.category_id FROM transactions t
+);
+```
+
+**Why subquery (not window function):** Same logic as Q2 — this is a set-membership / non-existence question ("is this category_id in the set of used category_ids?"), which is exactly what `NOT IN` / `NOT EXISTS` subqueries express. A window function operates *within* a result set to rank or aggregate rows that are already present — it has no way to represent "rows that don't exist in another table." (Tip: prefer `NOT EXISTS` over `NOT IN` in practice, since `NOT IN` behaves surprisingly if the subquery can return `NULL`.)
+
+---
+
+**Q10.** For each customer, show every transaction date along with the number of days since their previous transaction.
+
+```sql
+SELECT a.customer_id, t.transaction_id, t.txn_date,
+       t.txn_date - LAG(t.txn_date) OVER (
+           PARTITION BY a.customer_id ORDER BY t.txn_date, t.transaction_id
+       ) AS days_since_previous
+FROM transactions t
+JOIN accounts a ON a.account_id = t.account_id;
+```
+
+**Why JOIN + window function together:** We need the JOIN just to get from `transactions` to `customer_id` (transactions only link directly to `accounts`). Once we have that combined row set, the actual question — "compare this row's date to the *previous* row's date, per customer" — needs `LAG()`, a window function built specifically for reaching into an adjacent row without a self-join. Doing this with a subquery would mean, for every transaction, re-querying for "the max date less than mine for this customer" — it works, but it's a slower and clumsier way to express "give me the previous row," which `LAG()` does natively.
+
+---
+
+**Quick decision guide**
+
+| You need...                                                                   | Use                                                                  |
+| ----------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| Columns from two+ tables in the same row                                      | **JOIN**                                                             |
+| To test if something exists/doesn't exist in another table                    | **Subquery** (`EXISTS`/`NOT EXISTS`/`IN`)                            |
+| To filter rows against a single computed value (avg, max, count)              | **Subquery**                                                         |
+| A running total, moving average, or cumulative calculation                    | **Window function**                                                  |
+| Rank, row number, or "top N per group" while keeping all rows                 | **Window function**                                                  |
+| To compare each row to an aggregate of its own group, without collapsing rows | **Window function** (or correlated subquery — window usually faster) |
+| The previous/next row's value within a group                                  | **Window function** (`LAG`/`LEAD`)                                   |
+| To collapse many rows into one summary row per group                          | **GROUP BY** (with JOIN if needed), not a window function            |
+
+# SQL Practice: ADVANCE QUERIES
+
+# 6. Part A — Joining Tables
 
 Every table above holds one slice of the picture: customers knows who someone is, accounts knows what they hold, transactions knows what moved. None of them alone can answer “which city does our biggest spender live in?” A JOIN stitches rows from two or more tables together on a matching key so you can query across that full picture in one go.
 
@@ -311,7 +522,7 @@ Try each question yourself before turning to Section 7.
 
 > ***Hint:*** *Start from a LEFT JOIN from customers to accounts, then filter for the rows where the join found nothing.*
 
-# 6. Part B — Grouping and Aggregation
+# 7. Part B — Grouping and Aggregation
 
 A join gives you more columns per row, but it doesn't reduce how many rows you have — join transactions to customers and you still have one row per transaction. GROUP BY takes the next step: it collapses many rows that share a value (e.g. all of one customer's transactions) into a single summary row, so you can use aggregate functions such as SUM, COUNT, and AVG. This is the tool for “how much / how many / on average” questions where you don't need to see the individual rows anymore.
 
@@ -336,7 +547,7 @@ A join gives you more columns per row, but it doesn't reduce how many rows you h
 
 > ***Hint:*** *GROUP BY customer and by a month expression (e.g. DATE_TRUNC('month', txn_date) or TO_CHAR(txn_date,'YYYY-MM')). Keep this result in mind — Part D revisits it.*
 
-# 7. Part C — Subqueries
+# 8. Part C — Subqueries
 
 Some questions need a value or a set of rows to be computed first, before your main filter can even be written — “accounts above the average balance” needs the average computed before you can compare anything to it. A subquery is a query nested inside another query that supplies exactly that: a single value, a list of values, or a whole derived table.
 
@@ -367,7 +578,7 @@ A join alone can't do these, because a join doesn't compute a comparison value l
 
 > ***Hint:*** *Note this could also be written with GROUP BY ... HAVING directly — do that version too and compare. The derived-table version becomes essential once you need to join that summary back to other tables or aggregate it further.*
 
-# 8. Part D — Window Functions
+# 9. Part D — Window Functions
 
 GROUP BY is powerful but destructive: once you group, the individual rows are gone. Real financial questions often need both at once — “show me every transaction, and next to each one, the running balance so far”, or “rank every customer by spend, but keep one row per customer with their details intact.” A window function computes an aggregate or ranking “over” a window of rows (a PARTITION, optionally ordered) without collapsing anything — every input row survives in the output.
 
@@ -401,16 +612,16 @@ GROUP BY is powerful but destructive: once you group, the individual rows are go
 
 > ***Hint:*** *NTILE(4) OVER (ORDER BY total_spend DESC).*
 
-# 9. Choosing the Right Tool
+# 10. Choosing the Right Tool
 
 Before moving to the solutions, use this as a quick reference the next time you're staring at a business question and aren't sure where to start.
 
-| Tool | What it does | Keeps row-level detail? | Reach for it when… |
-|---|---|---|---|
-| JOIN | Combines columns from related tables into one result set. | Yes | You need data that lives in more than one table (e.g. a customer's name next to their transaction). |
-| GROUP BY | Collapses many rows into one summary row per group. | No — rows are aggregated away | You need one summary number per category (totals, counts, averages) and don't need the individual rows anymore. |
-| Subquery | A query nested inside another query; runs first (or once per row for correlated subqueries) and feeds a value, set, or table into the outer query. | Depends on placement | You need to filter or compare against a computed value (an average, a max, an existence check) before your main query can run, especially across multiple aggregation levels. |
-| Window Function | Computes an aggregate/ranking ‘over’ a partition of rows, without collapsing them. | Yes | You need a running total, rank, moving average, or period-over-period comparison alongside each individual row. |
+| Tool            | What it does                                                                                                                                       | Keeps row-level detail?       | Reach for it when…                                                                                                                                                            |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| JOIN            | Combines columns from related tables into one result set.                                                                                          | Yes                           | You need data that lives in more than one table (e.g. a customer's name next to their transaction).                                                                           |
+| GROUP BY        | Collapses many rows into one summary row per group.                                                                                                | No — rows are aggregated away | You need one summary number per category (totals, counts, averages) and don't need the individual rows anymore.                                                               |
+| Subquery        | A query nested inside another query; runs first (or once per row for correlated subqueries) and feeds a value, set, or table into the outer query. | Depends on placement          | You need to filter or compare against a computed value (an average, a max, an existence check) before your main query can run, especially across multiple aggregation levels. |
+| Window Function | Computes an aggregate/ranking ‘over’ a partition of rows, without collapsing them.                                                                 | Yes                           | You need a running total, rank, moving average, or period-over-period comparison alongside each individual row.                                                               |
 
 A useful mental checklist:
 
@@ -420,11 +631,11 @@ A useful mental checklist:
 - Do I need a running total, rank, or comparison to a neighboring row, while still seeing every row? → Window function.
 - Often the real answer is “all four, layered” — join to gather the columns, group to summarize, wrap it in a subquery/CTE, then apply a window function on top. That's exactly what Q17, Q19, and Q20 do.
 
-# 10. Solutions
+# 11. Solutions
 
 Try every question yourself first — the learning happens in the struggle, not in reading the answer. Each solution below includes a short “Why” note explaining the reasoning, not just the syntax.
 
-## 10.1 Part A Solutions — Joins
+## 11.1 Part A Solutions — Joins
 
 **Q1 — Every account with its owner's name and city**
 
@@ -484,7 +695,7 @@ WHERE a.account_id IS NULL;
 
 **Why:** This LEFT JOIN + IS NULL pattern is sometimes called an “anti-join”: keep only the left rows that found no match. Only Jack Turner qualifies in this dataset.
 
-## 10.2 Part B Solutions — Grouping and Aggregation
+## 11.2 Part B Solutions — Grouping and Aggregation
 
 **Q6 — Total spending per customer**
 
@@ -567,7 +778,7 @@ ORDER BY c.customer_id, DATE_TRUNC('month', t.txn_date);
 
 **Why:** Grouping by both customer and month gives one row per customer per month. (In MySQL, replace DATE_TRUNC('month', t.txn_date) with DATE_FORMAT(t.txn_date, '%Y-%m-01').) Keep this query — Q19 and Q20 build directly on top of it.
 
-## 10.3 Part C Solutions — Subqueries
+## 11.3 Part C Solutions — Subqueries
 
 **Q11 — Accounts above the average balance**
 
@@ -665,7 +876,7 @@ HAVING SUM(-t.amount) > 2000;
 
 **Why:** Both versions return the same rows here. The derived-table version is worth knowing because HAVING stops being enough once you need to join the summarized result to another table, rank it, or feed it into a window function — which is precisely what Part D does next.
 
-## 10.4 Part D Solutions — Window Functions
+## 11.4 Part D Solutions — Window Functions
 
 **Q16 — Running balance per account**
 
