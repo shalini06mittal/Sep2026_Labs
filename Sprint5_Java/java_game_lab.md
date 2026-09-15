@@ -386,6 +386,27 @@ public class Mage extends Character implements Ultimate {
 
 > **Why an interface instead of just more inheritance?** Not every character has an ultimate ability (maybe a basic NPC doesn't), and `Character` can only `extend` one parent. `implements Ultimate` lets you say "this character ALSO has an ultimate" without forcing every single `Character` subclass to carry ultimate logic it doesn't need. A `Warrior` and a `Mage` can both implement `Ultimate` even though they're unrelated in every other way — interfaces group by *capability*, not by ancestry.
 
+
+> NPC stands for Non-Player Character — it's any character in a game that isn't controlled by a human player. The computer/game controls it instead.
+
+Examples:
+
+A shopkeeper you buy items from
+A quest-giver who hands out missions
+A random enemy grunt wandering around
+A background villager just standing there for atmosphere
+
+In the context of that sentence, the point was: your game has player-controlled characters like Mage and Warrior that have flashy ultimate abilities — but you might also have simple NPC characters (like a basic enemy or a vendor) that are still Characters (they have HP, a name, etc.) but don't need an ultimate at all.
+
+That's exactly why Ultimate was made an interface instead of just adding an activateUltimate() method directly to the base Character class:
+
+java
+public class Character { ... }              // every character: NPCs, players, everything
+public class Mage extends Character implements Ultimate { ... }   // HAS an ultimate
+public class BasicEnemy extends Character { ... }                  // no Ultimate -- doesn't need one
+
+If activateUltimate() lived in Character itself, every single subclass — including simple NPCs that should never have an ultimate — would be forced to have one (or you'd have to write awkward empty/placeholder versions for them). Making it a separate interface means only the classes that actually need that capability opt into it.
+
 ### Mini-task
 Define `Ultimate`. Make `Mage` and `Warrior` implement it. Write `triggerAllUltimates(Character[] squad)` that loops through, uses `instanceof` to check `if (c instanceof Ultimate u)` (Java's pattern-matching `instanceof`), and calls `u.activateUltimate()` only on those that have it.
 
