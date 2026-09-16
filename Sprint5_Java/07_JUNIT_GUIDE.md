@@ -14,26 +14,29 @@ it's used in this project**, with the real code alongside.
 
 ## Table of Contents
 
-1. [Project Setup: Dependencies and Test Runner](#1-project-setup-dependencies-and-test-runner)
-2. [The Classes Under Test](#2-the-classes-under-test)
-3. [`@Test` and `@DisplayName` — the Basics](#3-test-and-displayname--the-basics)
-4. [`@BeforeEach` — Fresh State for Every Test](#4-beforeeach--fresh-state-for-every-test)
-5. [Basic Assertions: `assertEquals`, `assertTrue`](#5-basic-assertions-assertequals-asserttrue)
-6. [`assertThrows` — Testing for Exceptions the Formal Way](#6-assertthrows--testing-for-exceptions-the-formal-way)
-7. [`assertAll` — Grouped Assertions](#7-assertall--grouped-assertions)
-8. [`@ParameterizedTest` + `@ValueSource` — One Test, Many Inputs](#8-parameterizedtest--valuesource--one-test-many-inputs)
-9. [`@ParameterizedTest` + `@CsvSource` — Input/Output Pairs](#9-parameterizedtest--csvsource--inputoutput-pairs)
-10. [`@Nested` — Structuring the Test Report](#10-nested--structuring-the-test-report)
-11. [`@Disabled` — Skipping a Test With Intent](#11-disabled--skipping-a-test-with-intent)
-12. [Why Mocking? The Problem With Real Collaborators](#12-why-mocking-the-problem-with-real-collaborators)
-13. [`@Mock` and `@ExtendWith(MockitoExtension.class)`](#13-mock-and-extendwithmockitoextensionclass)
-14. [Stubbing: `when(...).thenReturn(...)`](#14-stubbing-whenthenreturn)
-15. [`verify()` — Proving an Interaction Happened](#15-verify--proving-an-interaction-happened)
-16. [`ArgumentCaptor` — Inspecting What Was Actually Passed](#16-argumentcaptor--inspecting-what-was-actually-passed)
-17. [Mocks vs. Hand-Rolled Fakes](#17-mocks-vs-hand-rolled-fakes)
-18. [Hamcrest Matchers — Readable, Composable Assertions](#18-hamcrest-matchers--readable-composable-assertions)
-19. [Running the Tests](#19-running-the-tests)
-20. [Quick Reference Cheat Sheet](#20-quick-reference-cheat-sheet)
+- [JUnit, Step by Step — `11-junit` Test Suite](#junit-step-by-step--11-junit-test-suite)
+  - [Table of Contents](#table-of-contents)
+  - [1. Project Setup: Dependencies and Test Runner](#1-project-setup-dependencies-and-test-runner)
+  - [2. The Classes Under Test](#2-the-classes-under-test)
+  - [3. `@Test` and `@DisplayName` — the Basics](#3-test-and-displayname--the-basics)
+  - [4. `@BeforeEach` — Fresh State for Every Test](#4-beforeeach--fresh-state-for-every-test)
+  - [5. JUnit 5 Lifecycle Annotations](#5-junit-5-lifecycle-annotations)
+  - [6. Basic Assertions: `assertEquals`, `assertTrue`](#6-basic-assertions-assertequals-asserttrue)
+  - [6. `assertThrows` — Testing for Exceptions the Formal Way](#6-assertthrows--testing-for-exceptions-the-formal-way)
+  - [7. `assertAll` — Grouped Assertions](#7-assertall--grouped-assertions)
+  - [8. `@ParameterizedTest` + `@ValueSource` — One Test, Many Inputs](#8-parameterizedtest--valuesource--one-test-many-inputs)
+  - [9. `@ParameterizedTest` + `@CsvSource` — Input/Output Pairs](#9-parameterizedtest--csvsource--inputoutput-pairs)
+  - [10. `@Nested` — Structuring the Test Report](#10-nested--structuring-the-test-report)
+  - [11. `@Disabled` — Skipping a Test With Intent](#11-disabled--skipping-a-test-with-intent)
+  - [12. Why Mocking? The Problem With Real Collaborators](#12-why-mocking-the-problem-with-real-collaborators)
+  - [13. `@Mock` and `@ExtendWith(MockitoExtension.class)`](#13-mock-and-extendwithmockitoextensionclass)
+  - [14. Stubbing: `when(...).thenReturn(...)`](#14-stubbing-whenthenreturn)
+  - [15. `verify()` — Proving an Interaction Happened](#15-verify--proving-an-interaction-happened)
+  - [16. `ArgumentCaptor` — Inspecting What Was Actually Passed](#16-argumentcaptor--inspecting-what-was-actually-passed)
+  - [17. Mocks vs. Hand-Rolled Fakes](#17-mocks-vs-hand-rolled-fakes)
+  - [18. Hamcrest Matchers — Readable, Composable Assertions](#18-hamcrest-matchers--readable-composable-assertions)
+  - [19. Running the Tests](#19-running-the-tests)
+  - [20. Quick Reference Cheat Sheet](#20-quick-reference-cheat-sheet)
 
 ---
 
@@ -143,7 +146,83 @@ the outer class's (see [Section 10](#10-nested--structuring-the-test-report)).
 
 ---
 
-## 5. Basic Assertions: `assertEquals`, `assertTrue`
+---
+
+## 5. JUnit 5 Lifecycle Annotations
+
+Your test class currently repeats new AuthService(new InMemoryUserRepository()) in every method. JUnit 5 gives you hooks to handle setup and teardown.
+
+5.1 The four lifecycle hooks
+
+| **Annotation** | **Runs** | **Method Must be** | **Typical Use** |
+|---|---|---|---|
+| `@BeforeAll` | **Once**, before any test in the class | `static` | Open a DB connection, start a container |
+| `@BeforeEach` | Before **every** test | instance | **Reset state**, build fresh objects |
+| `@AfterEach` | After **every** test | instance | Clean up, verify no leaks |
+| `@AfterAll` | **Once**, after all tests | `static` | Close the connection |
+
+5.2 Watch them fire
+Create LifecycleDemoTest.java and actually run it — reading about the order is not the same as seeing it:
+
+```java
+package com.lab.auth;
+
+import org.junit.jupiter.api.*;
+
+class LifecycleDemoTest {
+
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("  @BeforeAll   — once, before everything");
+    }
+
+    @BeforeEach
+    void beforeEach(TestInfo info) {
+        System.out.println("    @BeforeEach  — before " + info.getDisplayName());
+    }
+
+    @Test
+    void firstTest() {
+        System.out.println("      >> firstTest body");
+    }
+
+    @Test
+    void secondTest() {
+        System.out.println("      >> secondTest body");
+    }
+
+    @AfterEach
+    void afterEach(TestInfo info) {
+        System.out.println("    @AfterEach   — after " + info.getDisplayName());
+    }
+
+    @AfterAll
+    static void afterAll() {
+        System.out.println("  @AfterAll    — once, after everything");
+    }
+}
+```
+
+```
+mvn -q test -Dtest=LifecycleDemoTest
+```
+
+Output:
+```
+  @BeforeAll   — once, before everything
+    @BeforeEach  — before firstTest()
+      >> firstTest body
+    @AfterEach   — after firstTest()
+    @BeforeEach  — before secondTest()
+      >> secondTest body
+    @AfterEach   — after secondTest()
+  @AfterAll    — once, after everything
+  ```
+By default JUnit 5 creates a brand-new instance of your test class for every test method. That's a deliberate design choice: it means instance fields can't leak between tests. Since there is no single instance that spans all tests, @BeforeAll has nowhere to live except a static context.
+
+You can change this with @TestInstance(Lifecycle.PER_CLASS), which reuses one instance and lets @BeforeAll be non-static — but then instance fields leak between tests, which is usually not what you want:
+
+## 6. Basic Assertions: `assertEquals`, `assertTrue`
 
 ```java
 @Test
