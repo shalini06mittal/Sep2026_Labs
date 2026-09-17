@@ -1,12 +1,19 @@
 package com.neueda.mocking;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
+//@ExtendWith(MockitoExtension.class)
 public class OrderServiceTest {
+
+//    @Mock
+//    OrderRepository repository;
 
     @Test
     void shouldSaveOrder() {
