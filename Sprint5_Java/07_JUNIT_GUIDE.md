@@ -278,11 +278,6 @@ void bondReportsTickerAndFeeTogether() {
     );
 }
 ```
-
-A plain chain of three separate `assertEquals` calls **stops at the first failure**,
-hiding any others until that one is fixed and the test re-run. `assertAll` runs every
-lambda and reports **all** failures together in a single test run.
-
 ---
 
 ## 8. `@ParameterizedTest` + `@ValueSource` — One Test, Many Inputs
@@ -299,6 +294,39 @@ void bondFeeIsAlwaysFive(double tradeValue) {
 `@ParameterizedTest` replaces what would otherwise be four or five near-identical,
 copy-pasted `@Test` methods. `@ValueSource` supplies **one input per run** — use it
 when the assertion logic is the same for every input (here: the fee is always `5.0`).
+
+A plain chain of three separate `assertEquals` calls **stops at the first failure**,
+hiding any others until that one is fixed and the test re-run. `assertAll` runs every
+lambda and reports **all** failures together in a single test run.
+
+You can only specify one type of array per @ValueSource declaration. 
+According to the JUnit 5 User Guide, the supported literal types include:
+
+strings: Strings = {"apple", "banana"}
+
+ints: ints = {1, 2, 3}
+
+longs: longs = {1L, 2L}
+
+doubles: doubles = {1.5, 2.5}
+
+floats: floats = {1.1f, 2.2f}
+
+booleans: booleans = {true, false}
+
+chars: chars = {'a', 'b'}
+
+shorts: shorts = {1, 2}
+
+bytes: bytes = {1, 2}
+
+classes: classes = {String.class, Integer.class}
+
+**Key Limitations
+Single Parameter Only: 
+@ValueSource can only supply arguments to test methods that accept a single parameter. If you need to test combinations of inputs and expected outputs (e.g., passing both an input String and an expected boolean), you must use other sources like @CsvSource or @MethodSource.
+
+No Null Values: You cannot pass null inside a @ValueSource array. To test null or empty values alongside your literals, combine it with @NullSource or @EmptySource.
 
 ---
 
