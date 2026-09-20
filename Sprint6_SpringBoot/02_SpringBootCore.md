@@ -29,7 +29,7 @@
 
 To add the dependencies, click on “Add Dependencies” and type “web”. Choose “Spring-web” and it should appear as below. Click on generate and the zip will be downloaded. Extract and open the project on intellij.
 
-![alt text](image.png)
+![Spring Initializer](images/1.png)
 
 ---
 
@@ -61,7 +61,7 @@ To add the dependencies, click on “Add Dependencies” and type “web”. Cho
    It will take some time as it will download dependencies for the first time.
    After running the application, you should see the screen as below.
 
-   ![Application startup logs](images/image2.png)
+   ![Application startup logs](images/2.png)
 
 4. Read the logs it says, tomcat and the port number. This is called as opinionated and defaults with which spring boot ships in.
 
@@ -115,7 +115,7 @@ To add the dependencies, click on “Add Dependencies” and type “web”. Cho
 
 4. **STOP THE APPLICATION AND RERUN.** You should see the output from the constructor.
 
-   ![Constructor output](images/image3.png)
+   ![Constructor output](images/3.png)
 
 ---
 
@@ -221,7 +221,7 @@ To add the dependencies, click on “Add Dependencies” and type “web”. Cho
 
 8. The data for @Value can also be provided from application.properties file. Open the file from within the resources folder and add the below:
 
-   ![application.properties](images/image4.png)
+   ![application.properties](images/4.png)
 
 9. Then update the setters of TokenGeneratore as follows:
 
@@ -302,7 +302,7 @@ To add the dependencies, click on “Add Dependencies” and type “web”. Cho
 
 5. It will throw NullPointerException for TokenGenerator class.
 
-   ![NullPointerException](images/image5.png)
+   ![NullPointerException](images/5.png)
 
 6. Even though TokenGenerator class object was created, spring needs to know it is required by BankService class. Normally we would do as follows:
 
