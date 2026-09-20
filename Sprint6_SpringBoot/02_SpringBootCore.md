@@ -107,7 +107,7 @@ To add the dependencies, click on “Add Dependencies” and type “web”. Cho
    ```java
    import org.springframework.stereotype.Component;
 
-   @Component
+   <mark>@Component</mark>
    public class TokenGenerator {
        // other methods
    }
