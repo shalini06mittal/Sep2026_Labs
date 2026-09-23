@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.training.SpringBootDemo.mapper.BookMapper">
+
+    <!-- Shared result mapping: used by XML statements AND by @ResultMap in the interface -->
+    <resultMap id="bookResultMap" type="com.training.SpringBootDemo.entity.Book">
+        <id     column="book_id"     property="bookid"/>
+        <result column="title"       property="title"/>
+        <result column="author"      property="author"/>
+        <result column="description" property="desc"/>
+        <result column="price"       property="price"/>
+    </resultMap>
+
+    <!-- Reusable SQL fragment -->
+    <sql id="bookColumns">book_id, title, author, description, price</sql>
+
+<!--    <select id="search"-->
+<!--            parameterType="com.training.SpringBootDemo.dto.BookSearchCriteria"-->
+<!--            resultType="Book"> if all properties of java class anc db column name matches-->
+    <select id="search"
+            parameterType="com.training.SpringBootDemo.dto.BookSearchCriteria"
+            resultMap="bookResultMap">
+        SELECT <include refid="bookColumns"/>
+        FROM book
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+                OR LOWER(description) LIKE CONCAT('%', LOWER(#{keyword}), '%'))
+            </if>
+            <if test="author != null and author != ''">
+                AND LOWER(author) = LOWER(#{author})
+            </if>
+            <if test="minPrice != null">
+                AND price &gt;= #{minPrice}
+            </if>
+            <if test="maxPrice != null">
+                AND price &lt;= #{maxPrice}
+            </if>
+            <if test="ids != null and ids.size() > 0">
+                AND book_id IN
+                <foreach collection="ids" item="bookId" open="(" separator="," close=")">
+                    #{bookId}
+                </foreach>
+            </if>
+        </where>
+        <choose>
+            <when test="sortBy == 'price'">ORDER BY price</when>
+            <when test="sortBy == 'author'">ORDER BY author</when>
+            <otherwise>ORDER BY title</otherwise>
+        </choose>
+        <if test="sortDir == 'desc'"> DESC</if>
+    </select>
+
+</mapper>
+
+
+<!--<if>       → dynamically decide WHETHER SQL is included-->
+<!--<foreach>  → dynamically generate repeated parameters-->
+<!--<choose>   → dynamically choose ONE SQL branch-->
+<!--<where>    → dynamically construct WHERE correctly-->
+<!--<resultMap>→ map database columns to Java properties-->
+<!--<sql>      → reuse SQL text-->
+
+<!--        SELECT book_id, title, author, description, price-->
+<!--        FROM book-->
+<!--        WHERE-->
+<!--        (-->
+<!--        LOWER(title) LIKE CONCAT('%', LOWER(?), '%')-->
+<!--        OR LOWER(description) LIKE CONCAT('%', LOWER(?), '%')-->
+<!--        )-->
+<!--        AND LOWER(author) = LOWER(?)-->
+<!--        AND price >= ?-->
+<!--        AND price <= ?-->
+<!--        AND book_id IN (?, ?, ?)-->
+<!--        ORDER BY price DESC-->
