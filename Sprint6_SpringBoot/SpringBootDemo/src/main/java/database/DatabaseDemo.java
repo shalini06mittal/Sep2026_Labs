@@ -8,11 +8,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+// #spring.datasource.url=jdbc:postgresql://localhost:5432/finance?currentSchema=ecommerce
 public class DatabaseDemo {
 
     // 1. Define database connection details
     // Format: jdbc:postgresql://<host>:<port>/<database_name>
-    private static final String URL = "jdbc:postgresql://localhost:5432/finance";
+    private static final String URL = "jdbc:postgresql://localhost:5432/mydb";
     private static final String USER = "postgres";
     private static final String PASSWORD = "postgres";
 
@@ -20,7 +21,8 @@ public class DatabaseDemo {
         Properties props = new Properties();
         props.setProperty("user", "postgres");
         props.setProperty("password", "password");
-        props.setProperty("currentSchema", "trading");
+        //props.setProperty("currentSchema", "trading");
+
         // 2. Establish connection and execute queries using try-with-resources
         try (Connection connection = DriverManager.getConnection(URL,props)) {
 
