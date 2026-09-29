@@ -47,7 +47,7 @@ docker network create kafka-net
 ## 2. Create the Brokers
 
 > [!IMPORTANT]
-> Replace `<LINUX_VM_IP>` with your Linux VM's IP address in every broker command below.
+> Replace `<LINUX_VM_IP>` OR `10.18.77.12` with your Linux VM's IP address in every broker command below.
 
 ### Broker 1
 
