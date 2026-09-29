@@ -9,9 +9,9 @@ A step-by-step guide to running a 3-node KRaft Kafka cluster in Docker, working 
   - [1. Create the Docker Network](#1-create-the-docker-network)
   - [2. Create the Brokers](#2-create-the-brokers)
     - [Broker 1](#broker-1)
+  - [MAKE SURE TO STOP AND REMOVE ANY PREVIOUS KAFKA BROKERS RUNNING ON 9092](#make-sure-to-stop-and-remove-any-previous-kafka-brokers-running-on-9092)
     - [Broker 2](#broker-2)
     - [Broker 3](#broker-3)
-    - [Broker summary](#broker-summary)
   - [3. Verify the Containers](#3-verify-the-containers)
   - [4. Topic Management](#4-topic-management)
     - [Create a Topic](#create-a-topic)
@@ -22,11 +22,11 @@ A step-by-step guide to running a 3-node KRaft Kafka cluster in Docker, working 
     - [Console Producer](#console-producer)
     - [Console Consumer](#console-consumer)
   - [6. Java Project](#6-java-project)
-    - [6.1 Clone below git repo within Linux VM:](#61-clone-below-git-repo-within-linux-vm)
-    - [6.2 Once cloned go within the java project as follows:](#62-once-cloned-go-within-the-java-project-as-follows)
-    - [6.3 Install Maven if not already installed and verify](#63-install-maven-if-not-already-installed-and-verify)
-    - [6.4 Open another shell and run the consumer if not running already and keep this shell running:](#64-open-another-shell-and-run-the-consumer-if-not-running-already-and-keep-this-shell-running)
-    - [6.5 Compile and execute java class:](#65-compile-and-execute-java-class)
+    - [6.1 Clone below git repo within Windows VM:](#61-clone-below-git-repo-within-windows-vm)
+    - [6.2 Once cloned go within the java project as follows in VSCode:](#62-once-cloned-go-within-the-java-project-as-follows-in-vscode)
+    - [6.3 Install Maven if not already installed and verify.](#63-install-maven-if-not-already-installed-and-verify)
+    - [6.4 Open linux shell and run the consumer if not running already and keep this shell running:](#64-open-linux-shell-and-run-the-consumer-if-not-running-already-and-keep-this-shell-running)
+    - [6.5 Compile and execute java class from:](#65-compile-and-execute-java-class-from)
   - [7. Optional: Passwordless Access from Windows to a Linux VM](#7-optional-passwordless-access-from-windows-to-a-linux-vm)
     - [Step 1: Generate an SSH key pair](#step-1-generate-an-ssh-key-pair)
     - [Step 2: Understand the two files](#step-2-understand-the-two-files)
@@ -51,20 +51,22 @@ docker network create kafka-net
 
 ### Broker 1
 
+## MAKE SURE TO STOP AND REMOVE ANY PREVIOUS KAFKA BROKERS RUNNING ON 9092
+
 ```bash
 docker run -d \
   --name kafka-1 \
   --hostname kafka-1 \
   --network kafka-net \
-  -p 29092:9092 \
+  -p 9092:9092 \
   -e KAFKA_NODE_ID=1 \
   -e KAFKA_PROCESS_ROLES=broker,controller \
-  -e KAFKA_LISTENERS='PLAINTEXT://:19092,CONTROLLER://:9093,PLAINTEXT_HOST://:9092' \
-  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-1:19092,PLAINTEXT_HOST://<LINUX_VM_IP>:29092' \
+  -e KAFKA_LISTENERS='PLAINTEXT://0.0.0.0:19092,CONTROLLER://0.0.0.0:19093,PLAINTEXT_HOST://0.0.0.0:9092' \
+  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-1:19092,PLAINTEXT_HOST://10.18.77.12:9092' \
   -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
   -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
   -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT' \
-  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093' \
+  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:19093,2@kafka-2:19093,3@kafka-3:19093' \
   -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=2 \
@@ -79,15 +81,15 @@ docker run -d \
   --name kafka-2 \
   --hostname kafka-2 \
   --network kafka-net \
-  -p 39092:9092 \
+  -p 8081:8081 \
   -e KAFKA_NODE_ID=2 \
   -e KAFKA_PROCESS_ROLES=broker,controller \
-  -e KAFKA_LISTENERS='PLAINTEXT://:19092,CONTROLLER://:9093,PLAINTEXT_HOST://:9092' \
-  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-2:19092,PLAINTEXT_HOST://<LINUX_VM_IP>:39092' \
+  -e KAFKA_LISTENERS='PLAINTEXT://0.0.0.0:19092,CONTROLLER://0.0.0.0:19093,PLAINTEXT_HOST://0.0.0.0:8081' \
+  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-2:19092,PLAINTEXT_HOST://10.18.77.12:8081' \
   -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
   -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
   -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT' \
-  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093' \
+  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:19093,2@kafka-2:19093,3@kafka-3:19093' \
   -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=2 \
@@ -102,29 +104,21 @@ docker run -d \
   --name kafka-3 \
   --hostname kafka-3 \
   --network kafka-net \
-  -p 49092:9092 \
+  -p 8082:8082 \
   -e KAFKA_NODE_ID=3 \
   -e KAFKA_PROCESS_ROLES=broker,controller \
-  -e KAFKA_LISTENERS='PLAINTEXT://:19092,CONTROLLER://:9093,PLAINTEXT_HOST://:9092' \
-  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-3:19092,PLAINTEXT_HOST://<LINUX_VM_IP>:49092' \
+  -e KAFKA_LISTENERS='PLAINTEXT://0.0.0.0:19092,CONTROLLER://0.0.0.0:19093,PLAINTEXT_HOST://0.0.0.0:8082' \
+  -e KAFKA_ADVERTISED_LISTENERS='PLAINTEXT://kafka-3:19092,PLAINTEXT_HOST://10.18.77.12:8082' \
   -e KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT \
   -e KAFKA_CONTROLLER_LISTENER_NAMES=CONTROLLER \
   -e KAFKA_LISTENER_SECURITY_PROTOCOL_MAP='CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT' \
-  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093' \
+  -e KAFKA_CONTROLLER_QUORUM_VOTERS='1@kafka-1:19093,2@kafka-2:19093,3@kafka-3:19093' \
   -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3 \
   -e KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=2 \
   -e CLUSTER_ID=4L6g3nShT-eMCtK--X86sw \
   apache/kafka:latest
 ```
-
-### Broker summary
-
-| Broker | Container | Node ID | Host port | Internal listener | Advertised external listener |
-|--------|-----------|---------|-----------|-------------------|------------------------------|
-| 1 | `kafka-1` | 1 | `29092` | `kafka-1:19092` | `<LINUX_VM_IP>:29092` |
-| 2 | `kafka-2` | 2 | `39092` | `kafka-2:19092` | `<LINUX_VM_IP>:39092` |
-| 3 | `kafka-3` | 3 | `49092` | `kafka-3:19092` | `<LINUX_VM_IP>:49092` |
 
 ---
 
@@ -146,7 +140,7 @@ You should see `kafka-1`, `kafka-2` and `kafka-3` running.
 docker exec kafka-1 /opt/kafka/bin/kafka-topics.sh \
   --create \
   --topic dummy \
-  --bootstrap-server kafka-1:19092,kafka-2:19092,kafka-3:19092 \
+  --bootstrap-server kafka-1:9092,kafka-2:8081,kafka-3:8082 \
   --partitions 5 \
   --replication-factor 3
 ```
@@ -205,23 +199,22 @@ docker exec kafka-1 /opt/kafka/bin/kafka-console-consumer.sh \
 
 ## 6. Java Project
 
-### 6.1 Clone below git repo within Linux VM:
+### 6.1 Clone below git repo within Windows VM:
 ```
 git clone  https://github.com/shalini06mittal/Sep2026_Labs.git
 ```
 
-### 6.2 Once cloned go within the java project as follows:
+### 6.2 Once cloned go within the java project as follows in VSCode:
 ```
 cd Sep2026_Labs/Sprint7_Kafka/FirstKafkaDemo/
 
 ```
-### 6.3 Install Maven if not already installed and verify
+### 6.3 Install Maven if not already installed and verify.
 ```
-sudo dnf install maven -y
 mvn --version
 ```
 
-### 6.4 Open another shell and run the consumer if not running already and keep this shell running:
+### 6.4 Open linux shell and run the consumer if not running already and keep this shell running:
 ```
 docker exec kafka-1 /opt/kafka/bin/kafka-console-consumer.sh \
   --topic dummy \
@@ -229,12 +222,20 @@ docker exec kafka-1 /opt/kafka/bin/kafka-console-consumer.sh \
   --bootstrap-server kafka-1:19092
 ```
 
-### 6.5 Compile and execute java class:
+### 6.5 Compile and execute java class from:
 ```
 mvn compile
+```
+
+> START THE PRODUCER:
+```
 mvn -q exec:java "-Dexec.mainClass=com.demo.AppProducer"
 ```
 
+> START THE CONSUMER:
+```
+mvn -q exec:java "-Dexec.mainClass=com.demo.AppConsumer"
+```
 ---
 
 ## 7. Optional: Passwordless Access from Windows to a Linux VM
