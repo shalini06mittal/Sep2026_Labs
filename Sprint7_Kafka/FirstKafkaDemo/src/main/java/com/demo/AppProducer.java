@@ -26,7 +26,7 @@ public class AppProducer {
         System.out.println("sending");
 //        int c= 1;
         for (int i = 1; i <= AppConfigs.numEvents; i++) {
-         //   System.out.println();
+            System.out.println("producing message "+i);
             producer.send(new ProducerRecord<>(AppConfigs.topicName, "Heyyyyy!!!- " + i));
 //            if(i%100==0)
 //                c++;
