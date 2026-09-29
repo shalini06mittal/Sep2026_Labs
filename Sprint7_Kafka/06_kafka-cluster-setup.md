@@ -4,26 +4,35 @@ A step-by-step guide to running a 3-node KRaft Kafka cluster in Docker, working 
 
 ## Table of Contents
 
-1. [Create the Docker Network](#1-create-the-docker-network)
-2. [Create the Brokers](#2-create-the-brokers)
-   - [Broker 1](#broker-1)
-   - [Broker 2](#broker-2)
-   - [Broker 3](#broker-3)
-3. [Verify the Containers](#3-verify-the-containers)
-4. [Topic Management](#4-topic-management)
-   - [Create a Topic](#create-a-topic)
-   - [Describe a Topic](#describe-a-topic)
-   - [List Topics](#list-topics)
-   - [Delete a Topic](#delete-a-topic)
-5. [Console Producer and Consumer](#5-console-producer-and-consumer)
-   - [Console Producer](#console-producer)
-   - [Console Consumer](#console-consumer)
-6. [Java Project](#6-java-project)
-   - [Create a Maven Project](#61-create-a-maven-project)
-   - [Add Dependencies](#62-add-dependencies)
-   - [AppConfigs.java](#63-appconfigsjava)
-   - [AppProducer.java](#64-appproducerjava)
-7. [Optional: Passwordless Access from Windows to a Linux VM](#7-optional-passwordless-access-from-windows-to-a-linux-vm)
+- [Kafka 3-Broker Cluster Setup with Docker](#kafka-3-broker-cluster-setup-with-docker)
+  - [Table of Contents](#table-of-contents)
+  - [1. Create the Docker Network](#1-create-the-docker-network)
+  - [2. Create the Brokers](#2-create-the-brokers)
+    - [Broker 1](#broker-1)
+    - [Broker 2](#broker-2)
+    - [Broker 3](#broker-3)
+    - [Broker summary](#broker-summary)
+  - [3. Verify the Containers](#3-verify-the-containers)
+  - [4. Topic Management](#4-topic-management)
+    - [Create a Topic](#create-a-topic)
+    - [Describe a Topic](#describe-a-topic)
+    - [List Topics](#list-topics)
+    - [Delete a Topic](#delete-a-topic)
+  - [5. Console Producer and Consumer](#5-console-producer-and-consumer)
+    - [Console Producer](#console-producer)
+    - [Console Consumer](#console-consumer)
+  - [6. Java Project](#6-java-project)
+    - [6.1 Clone below git repo within Linux VM:](#61-clone-below-git-repo-within-linux-vm)
+    - [6.2 Once cloned go within the java project as follows:](#62-once-cloned-go-within-the-java-project-as-follows)
+    - [6.3 Install Maven if not already installed and verify](#63-install-maven-if-not-already-installed-and-verify)
+    - [6.4 Open another shell and run the consumer if not running already and keep this shell running:](#64-open-another-shell-and-run-the-consumer-if-not-running-already-and-keep-this-shell-running)
+    - [6.5 Compile and execute java class:](#65-compile-and-execute-java-class)
+  - [7. Optional: Passwordless Access from Windows to a Linux VM](#7-optional-passwordless-access-from-windows-to-a-linux-vm)
+    - [Step 1: Generate an SSH key pair](#step-1-generate-an-ssh-key-pair)
+    - [Step 2: Understand the two files](#step-2-understand-the-two-files)
+    - [Step 3: Copy the public key to Linux](#step-3-copy-the-public-key-to-linux)
+    - [Step 4: Test passwordless SSH](#step-4-test-passwordless-ssh)
+    - [Step 5: Run Kafka commands remotely](#step-5-run-kafka-commands-remotely)
 
 ---
 
@@ -196,78 +205,34 @@ docker exec kafka-1 /opt/kafka/bin/kafka-console-consumer.sh \
 
 ## 6. Java Project
 
-### 6.1 Create a Maven Project
-
-Create a simple Maven Java project in your IDE of choice.
-
-### 6.2 Add Dependencies
-
-Add the following to your `pom.xml`:
-
-```xml
-<dependency>
-    <groupId>org.apache.kafka</groupId>
-    <artifactId>kafka-clients</artifactId>
-    <version>3.8.0</version>
-</dependency>
-<dependency>
-    <groupId>org.slf4j</groupId>
-    <artifactId>slf4j-simple</artifactId>
-    <version>1.7.36</version>
-</dependency>
+### 6.1 Clone below git repo within Linux VM:
+```
+git clone  https://github.com/shalini06mittal/Sep2026_Labs.git
 ```
 
-### 6.3 AppConfigs.java
+### 6.2 Once cloned go within the java project as follows:
+```
+cd Sep2026_Labs/Sprint7_Kafka/FirstKafkaDemo/
 
-Create `AppConfigs.java` with the following content:
-
-```java
-class AppConfigs {
-    final static String applicationID = "StorageDemo";
-    final static String bootstrapServers = "kafka-1:19092,kafka-2:19092,kafka-3:19092";
-    final static String topicName = "dummy";
-    final static int numEvents = 500000;
-}
+```
+### 6.3 Install Maven if not already installed and verify
+```
+sudo dnf install maven -y
+mvn --version
 ```
 
-### 6.4 AppProducer.java
+### 6.4 Open another shell and run the consumer if not running already and keep this shell running:
+```
+docker exec kafka-1 /opt/kafka/bin/kafka-console-consumer.sh \
+  --topic dummy \
+  --from-beginning \
+  --bootstrap-server kafka-1:19092
+```
 
-Create `AppProducer.java` as follows:
-
-```java
-import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.ProducerConfig;
-import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.IntegerSerializer;
-import org.apache.kafka.common.serialization.StringSerializer;
-
-import java.util.Properties;
-
-public class AppProducer {
-
-    public static void main(String[] args) {
-
-        System.out.println("Producer");
-        System.out.println("Creating Kafka Producer...");
-        Properties props = new Properties();
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, AppConfigs.applicationID);
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, AppConfigs.bootstrapServers);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, IntegerSerializer.class.getName());
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-
-        KafkaProducer<Integer, String> producer = new KafkaProducer<>(props);
-
-        System.out.println("Start sending messages...");
-        System.out.println("sending");
-        for (int i = 1; i <= AppConfigs.numEvents; i++) {
-            producer.send(new ProducerRecord<>(AppConfigs.topicName, "Heyyyyy!!!- " + i));
-        }
-        System.out.println("finished");
-        System.out.println("Finished - Closing Kafka Producer.");
-        producer.close();
-
-    }
-}
+### 6.5 Compile and execute java class:
+```
+mvn compile
+mvn -q exec:java "-Dexec.mainClass=com.demo.AppProducer"
 ```
 
 ---
