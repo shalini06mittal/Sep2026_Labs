@@ -16,6 +16,68 @@ That single line drives three properties you must reason about for every scenari
 | **Load distribution** | Too few distinct keys, or a few very "hot" keys, means uneven partitions (skew) and a bottleneck. |
 | **Co-location / statefulness** | Consumers and stream processors that keep per-entity state need all of an entity's events on the same partition. |
 
+---
+
+The "Load distribution" row is about how evenly your records spread across partitions. Partitions are Kafka's unit of parallelism, so if the spread is uneven, some partitions and the consumers reading them do far more work than others.
+
+>Why skew happens
+
+Kafka assigns a partition with hash(key) % numPartitions. The hash gives you no control over where a particular key lands. Skew has two causes.
+
+> 1. Too few distinct keys (low cardinality)
+
+A topic with 12 partitions and a key with only 4 possible values, such as event_type or log_level, can use at most 4 partitions. The other 8 stay empty, and you have paid for 12 partitions but get the parallelism of 4.
+
+It gets worse than that. With few keys, hash collisions are likely, so two of your 4 keys may land on the same partition. This is the same "balls into bins" effect as the birthday problem. Even when every key has identical traffic, you need many more keys than partitions (as a rough rule, 10x or more) before the distribution looks even.
+
+> 2. Hot keys (uneven traffic per key)
+
+Even with millions of keys, if one key carries a big share of the traffic, its partition carries that share too. Take a topic with 40 partitions where the homepage / is 30% of all page views. If you key by page_url, one partition gets 30% of the load while the other 39 share the remaining 70%, about 1.8% each.
+
+Adding partitions does not fix this. A single key always maps to a single partition, so the hot key's partition stays as hot as before.
+
+ >What the bottleneck looks like
+
+| Symptom | 	Why it happens |
+|---|---|
+| **Consumer lag on one partition** | Within a consumer group, one partition is read by one consumer at a time. If that partition receives 30% of the traffic, one consumer must handle it alone, while the rest sit mostly idle. Adding consumers doesn't help. |
+| **Broker hotspot** | Each partition has a leader broker that handles its reads and writes. The broker hosting the hot partition sees higher CPU, network, and disk I/O than its peers. |
+| **Uneven disk usage** | The hot partition's log grows faster, so one broker's disk fills up first, and retention behaves differently across partitions.|
+| **Noisy neighbors** |	Other keys that happen to hash to the hot partition get delayed too, even though their own traffic is small. |
+| **Producer backpressure** | Batches for the hot partition fill quickly, which can cause more waiting or throttling on the producer side. |
+	
+	
+
+The overall system speed is set by the slowest partition, not the average. That is why skew hurts even when total capacity looks sufficient.
+
+>A worked example
+
+Suppose 6 partitions and 60,000 messages per second, with a consumer that handles 12,000 messages per second per partition.
+
+Even spread: each partition gets 10,000 messages per second, under the 12,000 limit, so consumers keep up.
+One key with 40% of traffic: that partition gets 24,000 messages per second, twice what one consumer can process. Lag grows without bound on that partition, while the other five each get about 7,200 messages per second and are underused.
+
+Total capacity (72,000 messages per second) was enough, but the skew made the system fall behind.
+
+>How to detect it
+
+* Compare per-partition message rate and bytes (BytesInPerSec per topic-partition, or the end offset growth per partition).
+* Look at consumer lag per partition, not just the group total. One partition far above the rest is the classic signature.
+* Check log size per partition with kafka-log-dirs.sh.
+* Count distinct keys and look at the top-N keys by volume.
+
+>How to fix or reduce it
+
+* **Use a higher-cardinality key**. Prefer sensor_id over gateway_id, or user_id over country.
+* **Use a composite key. For example tenant_id:user_id splits a huge tenant across many partitions while keeping per-user ordering.
+* **Salt the hot key.** Append a bucket number (hotKey#0 to hotKey#N-1). This spreads load, but you lose ordering across buckets, and consumers must merge results.
+* **Isolate the hot key.** Give a very large tenant or entity its own topic or dedicated partitions.
+* **Drop the key.** If nothing needs ordering or grouping, use a null key and let the sticky partitioner balance it.
+* **Write a custom partitioner.** This is possible but easy to get wrong. It must be deterministic and consistent across all producers, or you break per-key ordering.
+
+The tradeoff throughout is that better balance usually means weaker ordering guarantees. The aim is to make the key as fine-grained as your ordering requirement allows, and no coarser.
+
+---
 **Questions to ask for every case:**
 1. What entity must have its events processed **in order**?
 2. What entity needs **all its events in one place** (state, aggregation, joins)?
