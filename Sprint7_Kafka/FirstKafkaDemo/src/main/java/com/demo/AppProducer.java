@@ -8,7 +8,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 
 import java.util.Properties;
 
-public class StorageDemo {
+public class AppProducer {
 
     public static void main(String[] args) {
 
