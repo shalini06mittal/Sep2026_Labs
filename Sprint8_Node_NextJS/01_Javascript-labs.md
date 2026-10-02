@@ -15,7 +15,7 @@
 | 8 | [The Challenge: Bug Hunt](#lab-8-the-challenge-bug-hunt) | 
 | | [Solutions](#solutions) | |
 
-**Jump to solutions:** [Lab 1](#lab-1-solutions) · [Lab 2](#lab-2-solutions) · [Lab 3](#lab-3-solutions) · [Lab 4](#lab-4-solutions) · [Lab 5](#lab-5-solutions) · [Lab 6](#lab-6-solutions) · [Lab 7](#lab-7-solutions) · [Lab 8: Bug Hunt](#lab-8-solutions-bug-hunt) · [Wrap-up self-check](#wrap-up-self-check)
+**Jump to solutions:** · [Lab 3](#lab-3-solutions) · [Lab 4](#lab-4-solutions) · [Lab 5](#lab-5-solutions) · [Lab 6](#lab-6-solutions) · [Lab 7](#lab-7-solutions) · [Lab 8: Bug Hunt](#lab-8-solutions-bug-hunt) · [Wrap-up self-check](#wrap-up-self-check)
 
 ---
 
